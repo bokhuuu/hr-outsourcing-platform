@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasCompanyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeaveRequest extends Model
 {
+    use HasCompanyScope;
+
     protected $fillable = [
         'employee_id',
         'company_id',

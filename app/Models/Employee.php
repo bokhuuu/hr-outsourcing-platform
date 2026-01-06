@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasCompanyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
+
+    use HasCompanyScope;
+
     protected $fillable = [
         'user_id',
         'company_id',
