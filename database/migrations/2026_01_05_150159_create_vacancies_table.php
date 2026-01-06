@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('employment_type', ['full-time', 'part-time', 'contract', 'remote']);
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamp('published_at')->nullable();
-            $table->date('expiration_at')->nullable();
+            $table->date('expiration_date')->nullable();
             $table->timestamps();
         });
     }
