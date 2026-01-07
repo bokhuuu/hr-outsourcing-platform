@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AbsenceController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LeaveRequestController;
@@ -27,6 +28,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/leave-requests', [LeaveRequestController::class, 'store']);
     Route::get('/leave-requests', [LeaveRequestController::class, 'index']);
 
+    Route::get('/absences', [AbsenceController::class, 'index']);
+
     Route::middleware('role:hr,company_admin')->group(function () {
         Route::put('/leave-requests/{leaveRequest}/approve', [LeaveRequestController::class, 'approve']);
         Route::put('/leave-requests/{leaveRequest}/reject', [LeaveRequestController::class, 'reject']);
@@ -34,5 +37,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:hr')->group(function () {
         Route::post('/companies/{company}/vacancies', [VacancyController::class, 'store']);
+        Route::post('/absences', [AbsenceController::class, 'store']);
     });
 });
