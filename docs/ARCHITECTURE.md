@@ -1,0 +1,82 @@
+# Architecture Overview
+
+## Multi-Tenancy
+
+The system uses database-level multi-tenancy with a shared database approach
+
+**Implementation:**
+
+-   All company-specific tables have a `company_id` column
+-   Global Scopes automatically filter queries by company
+-   `app/Models/Scopes/CompanyScope.php`
+
+**Trait for reusability:**
+
+-   `HasCompanyScope` trait applied to models: Employee, Position, LeaveRequest, Absence, Attendance, Vacancy
+-   `app/Models/Traits/HasCompanyScope.php`
+
+## Authorization
+
+Two-level approach:
+
+**Middleware (route-level blocking)**
+**Controller (data filtering)**
+
+## Database Design
+
+**User vs Employee separation:**
+
+-   `users` table: Authentication (login, roles)
+-   `employees` table: HR data (position, manager, company)
+-   HR and Admin users have no employee records (platform-level)
+-   Company Admin and Employee users have both user + employee records
+
+**Self-referencing relationships:**
+
+-   `employees.manager_id` -> `employees.id` (manager is also an employee)
+-   No separate managers table needed
+
+## API Authentication
+
+**Laravel Sanctum** for token-based authentication
+
+**Token flow:**
+
+```
+1. POST /login
+2. Client stores token
+3. Client sends: Authorization: Bearer {token}
+4. Sanctum validates
+5. Request proceeds
+```
+
+## Validation
+
+**Form Requests:**
+
+-   `StoreVacancyRequest`, `StoreLeaveRequest`, `StoreAbsenceRequest`
+-   `app/Http/Requests/`
+
+**Key validations:**
+
+-   `end_date|after_or_equal:start_date` - Prevents invalid date ranges
+-   `employee_id|exists:employees,id` - Ensures employee exists
+-   Database unique constraints for business rules (one check-in per day, one absence per employee per day)
+
+## File Structure
+
+```
+app/
+├── Http/
+│   ├── Controllers/Api/        # API controllers
+│   ├── Middleware/             # CheckRole middleware
+│   └── Requests/               # Form Request validation
+├── Models/
+│   ├── Scopes/                 # CompanyScope
+│   └── Traits/                 # HasCompanyScope
+database/
+├── migrations/                 # Schema definitions
+└── seeders/                    # Test data
+routes/
+└── api.php                     # API routes with versioning
+```
