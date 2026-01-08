@@ -37,6 +37,20 @@ A multi-tenant HR management system that enables HRs to manage multiple companie
 -   One absence per employee per day
 -   Tracking of who registered the absence
 
+## User Interface
+
+**Employee Self-Service Pages**
+
+-   Role-based dashboards
+-   Attendance management (check-in/check-out with history)
+-   Leave request creation and tracking
+-   View registered absences
+
+**Authentication**
+
+-   Login/logout functionality (Laravel Breeze)
+-   Session-based web authentication
+
 ## Tech Stack
 
 -   Laravel 11
@@ -152,3 +166,8 @@ GET    /api/v1/absences                    - List absences (role-based)
 ## API Authentication
 
 All protected endpoints require Bearer token authentication
+
+## Future Improvements
+
+-   **Service Layer Pattern**: Extract business logic to dedicated Service classes to eliminate code duplication between API and Web controllers
+-   **Automated Testing**: Unit and feature tests for critical business logic
