@@ -26,6 +26,7 @@ A multi-tenant HR management system that enables HRs to manage multiple companie
 **Leave Request System**
 
 -   Employees create leave requests with date ranges
+-   Automatic overlap detection - Prevents duplicate/overlapping requests
 -   Approval workflow: pending -> approved/rejected
 -   HR and Company Admins can approve or reject requests
 -   Rejection reason tracking
@@ -108,9 +109,12 @@ DB_PASSWORD=
 php artisan migrate --seed
 ```
 
-**Start the development server**
+**Compile frontend assets and start development server**
 
 ```bash
+# Terminal 1
+npm run dev
+# Terminal 2
 php artisan serve
 ```
 

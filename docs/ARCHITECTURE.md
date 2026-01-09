@@ -63,6 +63,14 @@ Two-level approach:
 -   `employee_id|exists:employees,id` - Ensures employee exists
 -   Database unique constraints for business rules (one check-in per day, one absence per employee per day)
 
+**Custom Validation Hooks**
+
+Form Requests use `withValidator()` for complex validation:
+
+-   Database queries for business logic
+-   Multi-field validation (date range overlaps)
+-   Runs after basic rules pass
+
 ## File Structure
 
 ```

@@ -39,6 +39,12 @@
                             @enderror
                         </div>
 
+                        @error('dates')
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
                         <div class="mb-4">
                             <label class="block text-gray-700 mb-2">Reason (optional)</label>
                             <textarea name="reason" rows="3" class="w-full border-gray-300 rounded">{{ old('reason') }}</textarea>
