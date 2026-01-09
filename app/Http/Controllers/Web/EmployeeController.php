@@ -7,6 +7,8 @@ use App\Http\Requests\LeaveRequest\StoreLeaveRequest;
 use App\Models\Absence;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
+use App\Services\AttendanceService;
+use Exception;
 
 class EmployeeController extends Controller
 {
@@ -29,7 +31,7 @@ class EmployeeController extends Controller
         return view('employee.attendance', compact('attendances', 'todayAttendance'));
     }
 
-    public function checkIn()
+    public function checkIn(AttendanceService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -37,25 +39,16 @@ class EmployeeController extends Controller
             return back()->with('error', 'Employee record not found');
         }
 
-        $existingAttendance = Attendance::where('employee_id', $employee->id)
-            ->where('date', today())
-            ->first();
+        try {
+            $service->checkIn($employee);
 
-        if ($existingAttendance) {
-            return back()->with('error', 'Already checked in today');
+            return back()->with('success', 'Checked in successfully');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        Attendance::create([
-            'employee_id' => $employee->id,
-            'company_id' => $employee->company_id,
-            'date' => today(),
-            'check_in_time' => now()->toTimeString(),
-        ]);
-
-        return back()->with('success', 'Checked in successfully');
     }
 
-    public function checkOut()
+    public function checkOut(AttendanceService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -63,23 +56,13 @@ class EmployeeController extends Controller
             return back()->with('error', 'Employee record not found');
         }
 
-        $attendance = Attendance::where('employee_id', $employee->id)
-            ->where('date', today())
-            ->first();
+        try {
+            $service->checkOut($employee);
 
-        if (!$attendance) {
-            return back()->with('error', 'No check-in record found for today');
+            return back()->with('success', 'Checked out successfully');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        if ($attendance->check_out_time) {
-            return back()->with('error', 'Already checked out today');
-        }
-
-        $attendance->update([
-            'check_out_time' => now()->toTimeString(),
-        ]);
-
-        return back()->with('success', 'Checked out successfully');
     }
 
     public function leaveRequests()
