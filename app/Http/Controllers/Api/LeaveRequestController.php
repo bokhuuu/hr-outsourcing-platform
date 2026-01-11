@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LeaveRequest\StoreLeaveRequest;
 use App\Models\LeaveRequest;
+use App\Services\LeaveRequestService;
+use Exception;
 use Illuminate\Http\Request;
 
 use function Symfony\Component\Clock\now;
 
 class LeaveRequestController extends Controller
 {
-    public function store(StoreLeaveRequest $request)
+    /**
+     * Create leave request for employee
+     */
+    public function store(StoreLeaveRequest $request, LeaveRequestService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -21,65 +26,60 @@ class LeaveRequestController extends Controller
             ], 404);
         }
 
-        $leaveRequest = LeaveRequest::create([
-            'employee_id' => $employee->id,
-            'company_id' => $employee->company_id,
-            'leave_type' => $request->leave_type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'reason' => $request->reason,
-            'status' => 'pending'
-        ]);
+        try {
+            $leaveRequest =  $service->createRequest($employee, $request->validated());
 
-        return response()->json([
-            'message' => 'Leave request created successfully',
-            'data' => $leaveRequest
-        ], 201);
-    }
-
-    public function approve(LeaveRequest $leaveRequest)
-    {
-        if ($leaveRequest->status !== 'pending') {
             return response()->json([
-                'message' => 'Leave request has already been processed'
+                'message' => 'Leave request created successfully',
+                'data' => $leaveRequest
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 400);
         }
-
-        $leaveRequest->update([
-            'status' => 'approved',
-            'approved_by' => auth()->user()->id,
-            'approved_at' => now(),
-        ]);
-
-        return response()->json([
-            'message' => 'Leave request approved successfully',
-            'data' => $leaveRequest->fresh()
-        ], 200);
     }
 
-    public function reject(Request $request, LeaveRequest $leaveRequest)
+    /**
+     * Approve leave request
+     */
+    public function approve(LeaveRequest $leaveRequest, LeaveRequestService $service)
+    {
+        try {
+            $approvedLeaveRequest = $service->approve($leaveRequest, auth()->user()->id);
+
+            return response()->json([
+                'message' => 'Leave request approved successfully',
+                'data' => $approvedLeaveRequest
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Reject leave request
+     */
+    public function reject(LeaveRequest $leaveRequest, Request $request, LeaveRequestService $service)
     {
         $request->validate([
             'rejection_reason' => 'required|string'
         ]);
 
-        if ($leaveRequest->status !== 'pending') {
+        try {
+            $rejectedLeaveRequest = $service->reject($leaveRequest, auth()->user()->id, $request->rejection_reason);
+
             return response()->json([
-                'message' => 'Leave request has already been processed'
+                'message' => 'Leave request rejected successfully',
+                'data' => $rejectedLeaveRequest
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 400);
         }
-
-        $leaveRequest->update([
-            'status' => 'rejected',
-            'approved_by' => auth()->user()->id,
-            'approved_at' => now(),
-            'rejection_reason' => $request->rejection_reason
-        ]);
-
-        return response()->json([
-            'message' => 'Leave request rejected',
-            'data' => $leaveRequest->fresh()
-        ], 200);
     }
 
     public function index()

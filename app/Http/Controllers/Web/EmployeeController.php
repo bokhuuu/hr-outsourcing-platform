@@ -8,6 +8,7 @@ use App\Models\Absence;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Services\AttendanceService;
+use App\Services\LeaveRequestService;
 use Exception;
 
 class EmployeeController extends Controller
@@ -85,7 +86,7 @@ class EmployeeController extends Controller
         return view('employee.create-leave-request');
     }
 
-    public function storeLeaveRequest(StoreLeaveRequest $request)
+    public function storeLeaveRequest(StoreLeaveRequest $request, LeaveRequestService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -93,18 +94,14 @@ class EmployeeController extends Controller
             return back()->with('error', 'Employee record not found');
         }
 
-        LeaveRequest::create([
-            'employee_id' => $employee->id,
-            'company_id' => $employee->company_id,
-            'leave_type' => $request->leave_type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'reason' => $request->reason,
-            'status' => 'pending',
-        ]);
+        try {
+            $service->createRequest($employee, $request->validated());
 
-        return redirect()->route('employee.leave-requests')
-            ->with('success', 'Leave request submitted successfully');
+            return redirect()->route('employee.leave-requests')
+                ->with('success', 'Leave request submitted successfully');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function absences()
