@@ -58,6 +58,7 @@ A multi-tenant HR management system that enables HRs to manage multiple companie
 -   Laravel Breeze + Laravel Sanctum
 -   MySQL
 -   RESTful API
+-   Service Layer pattern for business logic
 
 ## Installation
 
