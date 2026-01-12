@@ -20,7 +20,6 @@ class AbsenceController extends Controller
                 $employee,
                 $request->date,
                 $request->reason,
-                auth()->user()->id
             );
 
             return response()->json([

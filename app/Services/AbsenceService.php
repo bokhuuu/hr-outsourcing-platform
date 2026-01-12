@@ -11,7 +11,7 @@ class AbsenceService
     /**
      * Register absence for employee
      */
-    public function register(Employee $employee, string $date, ?string $reason, int $createdBy): Absence
+    public function register(Employee $employee, string $date, ?string $reason): Absence
     {
         $existingAbsence = Absence::where('employee_id', $employee->id)
             ->where('date', $date)
@@ -26,7 +26,6 @@ class AbsenceService
             'company_id' => $employee->company_id,
             'date' => $date,
             'reason' => $reason,
-            'created_by' => $createdBy,
         ]);
 
         return $absence;
