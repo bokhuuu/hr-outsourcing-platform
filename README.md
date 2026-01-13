@@ -171,8 +171,3 @@ GET    /api/v1/absences                    - List absences (role-based)
 ## API Authentication
 
 All protected endpoints require Bearer token authentication
-
-## Future Improvements
-
--   **Service Layer Pattern**: Extract business logic to dedicated Service classes to eliminate code duplication between API and Web controllers
--   **Automated Testing**: Unit and feature tests for critical business logic
