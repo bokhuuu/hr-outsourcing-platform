@@ -7,6 +7,23 @@ A multi-tenant HR management system that enables HRs to manage multiple companie
 -   Each company's data is automatically separated using Global Scopes
 -   Roles: HR, Admin, Company Admin, Employee
 -   Secure authentication using Laravel Sanctum
+-   Role-based authorization middleware
+
+### Service Layer Architecture
+
+-   Clean separation between HTTP layer (controllers) and business logic (services)
+-   Reusable across API, Web and CLI contexts
+
+### Observer Pattern
+
+-   Automatic field tracking
+-   LeaveRequest and Absence models automatically set `created_by`
+
+### Testing
+
+-   15 Pest tests covering API endpoints
+-   Tests follow AAA pattern (Arrange-Act-Assert)
+-   Model factories for clean, isolated test data
 
 ### Functionality
 
@@ -51,14 +68,16 @@ A multi-tenant HR management system that enables HRs to manage multiple companie
 
 -   Login/logout functionality (Laravel Breeze)
 -   Session-based web authentication
+-   Token-based API authentication
 
 ## Tech Stack
 
--   Laravel 11
--   Laravel Breeze + Laravel Sanctum
--   MySQL
--   RESTful API
--   Service Layer pattern for business logic
+-   **Framework:** Laravel 11
+-   **Authentication:** Laravel Breeze + Laravel Sanctum
+-   **Database:** MySQL 8.0+
+-   **Testing:** Pest PHP
+-   **Architecture Patterns:** Service Layer, Observer, Repository (through Eloquent)
+-   **API:** RESTful with versioning
 
 ## Installation
 
@@ -120,6 +139,12 @@ php artisan serve
 ```
 
 The application will be available at `http://localhost:8000`
+
+**Run tests**
+
+```bash
+php artisan test
+```
 
 ## API Endpoints
 
