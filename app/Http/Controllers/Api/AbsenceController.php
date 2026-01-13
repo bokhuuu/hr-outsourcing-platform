@@ -6,25 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Absence\StoreAbsenceRequest;
 use App\Models\Absence;
 use App\Models\Employee;
+use App\Services\AbsenceService;
+use Exception;
 
 class AbsenceController extends Controller
 {
-    public function store(StoreAbsenceRequest $request)
+    public function store(StoreAbsenceRequest $request, AbsenceService $service)
     {
         $employee = Employee::findOrFail($request->employee_id);
 
-        $absence = Absence::create([
-            'employee_id' => $employee->id,
-            'company_id' => $employee->company_id,
-            'date' => $request->date,
-            'reason' => $request->reason,
-            'created_by' => auth()->user()->id,
-        ]);
+        try {
+            $absence = $service->register(
+                $employee,
+                $request->date,
+                $request->reason,
+            );
 
-        return response()->json([
-            'message' => 'Absence created successfully',
-            'data' => $absence
-        ], 201);
+            return response()->json([
+                'message' => 'Absence created successfully',
+                'data' => $absence
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function index()

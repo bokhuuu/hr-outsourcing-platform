@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Services\AttendanceService;
+use Exception;
 
 class AttendanceController extends Controller
 {
-    public function checkIn()
+    public function checkIn(AttendanceService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -17,32 +19,21 @@ class AttendanceController extends Controller
             ], 404);
         }
 
-        $today = today();
+        try {
+            $attendance = $service->checkIn($employee);
 
-        $existingAttendance = Attendance::where('employee_id', $employee->id)
-            ->where('date', $today)
-            ->first();
-
-        if ($existingAttendance) {
             return response()->json([
-                'message' => 'Already checked in today'
+                'message' => 'Checked in successfully',
+                'data' => $attendance
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 400);
         }
-
-        $attendance = Attendance::create([
-            'employee_id' => $employee->id,
-            'company_id' => $employee->company_id,
-            'date' => $today,
-            'check_in_time' => now()->toTimeString(),
-        ]);
-
-        return response()->json([
-            'message' => 'Checked in successfully',
-            'data' => $attendance
-        ], 201);
     }
 
-    public function checkOut()
+    public function checkOut(AttendanceService $service)
     {
         $employee = auth()->user()->employee;
 
@@ -52,30 +43,18 @@ class AttendanceController extends Controller
             ], 404);
         }
 
-        $attendance = Attendance::where('employee_id', $employee->id)
-            ->where('date', today())
-            ->first();
+        try {
+            $attendance = $service->checkOut($employee);
 
-        if (!$attendance) {
             return response()->json([
-                'message' => 'No check-in record found for today'
+                'message' => 'Checked out successfully',
+                'data' => $attendance
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 400);
         }
-
-        if ($attendance->check_out_time) {
-            return response()->json([
-                'message' => 'Already checked out today'
-            ], 400);
-        }
-
-        $attendance->update([
-            'check_out_time' => now()->toTimeString(),
-        ]);
-
-        return response()->json([
-            'message' => 'Checked out successfully',
-            'data' => $attendance->fresh()
-        ], 200);
     }
 
     public function index()

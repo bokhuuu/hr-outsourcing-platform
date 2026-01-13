@@ -50,6 +50,47 @@ Two-level approach:
 5. Request proceeds
 ```
 
+## Service Layer Pattern
+
+The application uses the Service Layer pattern to separate business logic from HTTP concerns.
+
+### Architecture
+
+```
+HTTP Request
+    ↓
+Controller (HTTP layer)
+    ├── Validate input
+    ├── Get authenticated user
+    ├── Call service method
+    └── Format response (JSON/HTML)
+    ↓
+Service (Business layer)
+    ├── Business logic validation
+    ├── Database operations
+    ├── Complex workflows
+    └── Return results
+    ↓
+Controller formats and returns response
+```
+
+### Services
+
+**AttendanceService**
+
+-   `checkIn(Employee $employee)` - Check in employee for the day
+-   `checkOut(Employee $employee)` - Check out employee
+
+**LeaveRequestService**
+
+-   `createRequest(Employee $employee, array $data)` - Create leave request with overlap validation
+-   `approve(LeaveRequest $leaveRequest, int $approvedBy)` - Approve leave request
+-   `reject(LeaveRequest $leaveRequest, int $rejectedBy, string $reason)` - Reject leave request
+
+**AbsenceService**
+
+-   `register(Employee $employee, string $date, ?string $reason, int $createdBy)` - Register employee absence
+
 ## Validation
 
 **Form Requests:**
@@ -76,15 +117,26 @@ Form Requests use `withValidator()` for complex validation:
 ```
 app/
 ├── Http/
-│   ├── Controllers/Api/        # API controllers
+│   ├── Controllers/
+│   │   ├── Api/                # API controllers (JSON responses)
+│   │   └── Web/                # Web controllers (HTML views)
 │   ├── Middleware/             # CheckRole middleware
 │   └── Requests/               # Form Request validation
 ├── Models/
 │   ├── Scopes/                 # CompanyScope
 │   └── Traits/                 # HasCompanyScope
+├── Services/                   # Business logic layer
+│   ├── AttendanceService.php
+│   ├── LeaveRequestService.php
+│   └── AbsenceService.php
 database/
 ├── migrations/                 # Schema definitions
 └── seeders/                    # Test data
+resources/
+├── views/
+│   ├── dashboard/              # Role-based dashboard partials
+│   └── employee/               # Employee self-service pages
 routes/
-└── api.php                     # API routes with versioning
+├── api.php                     # API routes with versioning
+└── web.php                     # Web routes (employee UI)
 ```

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Traits\HasCompanyScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeaveRequest extends Model
 {
-    use HasCompanyScope;
+    use HasCompanyScope, HasFactory;
 
     protected $fillable = [
         'employee_id',
@@ -17,6 +18,7 @@ class LeaveRequest extends Model
         'start_date',
         'end_date',
         'reason',
+        'created_by',
         'status',
         'approved_by',
         'approved_at',
